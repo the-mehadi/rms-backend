@@ -4,6 +4,7 @@ use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -30,6 +31,26 @@ return Application::configure(basePath: dirname(__DIR__))
                     'success' => false,
                     'message' => 'Unauthenticated. Please login first.',
                 ], 401);
+            }
+        });
+
+        // Return JSON 404 for API requests when models are not found
+        $exceptions->render(function (ModelNotFoundException $e, \Illuminate\Http\Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Resource not found.',
+                ], 404);
+            }
+        });
+
+        // Return JSON 500 for API requests on unexpected errors
+        $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Server error.',
+                ], 500);
             }
         });
     })->create();
