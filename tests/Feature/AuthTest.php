@@ -7,7 +7,6 @@ use Laravel\Sanctum\Sanctum;
 uses(RefreshDatabase::class);
 
 // ─── POST /api/auth/login ────────────────────────────────────────────────────
-
 test('user can login with correct credentials', function () {
     $user = User::factory()->create([
         'email'     => 'admin@restaurant.com',
@@ -118,7 +117,6 @@ test('deactivated user cannot login', function () {
 });
 
 // ─── GET /api/auth/me ────────────────────────────────────────────────────────
-
 test('authenticated user can view their profile', function () {
     $user = User::factory()->create([
         'role' => 'cashier',
@@ -151,7 +149,6 @@ test('unauthenticated user cannot access me endpoint', function () {
 });
 
 // ─── POST /api/auth/logout ───────────────────────────────────────────────────
-
 test('authenticated user can logout', function () {
     $user = User::factory()->create();
 
@@ -173,8 +170,10 @@ test('user cannot access me endpoint after logout', function () {
     ]);
 
     // Login to get token
-    $loginResponse = $this->postJson('/api/auth/login', [
-        'email'    => 'admin@restaurant.com',
+    $loginResponse = $this->withHeaders([
+        'Accept' => 'application/json',
+    ])->post('/api/auth/login', [
+        'email' => 'admin@restaurant.com',
         'password' => 'password123',
     ]);
 
@@ -185,7 +184,12 @@ test('user cannot access me endpoint after logout', function () {
          ->postJson('/api/auth/logout')
          ->assertStatus(200);
 
-    // Try to access /me with old token
+    // Clear Sanctum's token cache
+    $this->flushHeaders();
+    app()->forgetInstance('auth');
+    auth()->forgetGuards();
+
+    // Try to access /me with old token — should be 401
     $this->withHeader('Authorization', "Bearer $token")
          ->getJson('/api/auth/me')
          ->assertStatus(401);
