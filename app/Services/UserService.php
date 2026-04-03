@@ -26,17 +26,34 @@ class UserService
 
     public function updateUser(User $user, array $data): User
     {
-        $updateData = [
-            'name' => $data['name'],
-        ];
+        // $updateData = [
+        //     'name' => $data['name'],
+        // ];
 
-        if (array_key_exists('email', $data)) {
-            $updateData['email'] = $data['email'];
-        }
+        // if (array_key_exists('email', $data)) {
+        //     $updateData['email'] = $data['email'];
+        // }
 
-        if (array_key_exists('password', $data)) {
-            $updateData['password'] = Hash::make($data['password']);
-        }
+        // if (array_key_exists('password', $data)) {
+        //     $updateData['password'] = Hash::make($data['password']);
+        // }
+
+        // if (array_key_exists('role', $data)) {
+        //     $updateData['role'] = $data['role'];
+        // }
+
+        // if (array_key_exists('is_active', $data)) {
+        //     $updateData['is_active'] = $data['is_active'];
+        // }
+        $updateData = collect($data)
+            ->only(['name', 'email', 'role', 'is_active', 'password'])
+            ->filter(function ($value, $key) {
+                return $key === 'password' ? !empty($value) : true;
+            })
+            ->map(function ($value, $key) {
+                return $key === 'password' ? Hash::make($value) : $value;
+            })
+            ->toArray();
 
         $user->update($updateData);
 
@@ -48,4 +65,3 @@ class UserService
         $user->delete();
     }
 }
-
