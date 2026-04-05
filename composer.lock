@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a8f189841fe8e697993d7212d5078ce2",
+    "content-hash": "49fab7053a37b9c612813d3118fbcba9",
     "packages": [
         {
             "name": "brick/math",
@@ -1055,26 +1055,26 @@
         },
         {
             "name": "intervention/gif",
-            "version": "5.0.0",
+            "version": "4.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/gif.git",
-                "reference": "d856f59205aec768059d837148d755c079cdb94a"
+                "reference": "c3598a16ebe7690cd55640c44144a9df383ea73c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/gif/zipball/d856f59205aec768059d837148d755c079cdb94a",
-                "reference": "d856f59205aec768059d837148d755c079cdb94a",
+                "url": "https://api.github.com/repos/Intervention/gif/zipball/c3598a16ebe7690cd55640c44144a9df383ea73c",
+                "reference": "c3598a16ebe7690cd55640c44144a9df383ea73c",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.3"
+                "php": "^8.1"
             },
             "require-dev": {
                 "phpstan/phpstan": "^2.1",
-                "phpunit/phpunit": "^12.0",
+                "phpunit/phpunit": "^10.0 || ^11.0  || ^12.0",
                 "slevomat/coding-standard": "~8.0",
-                "squizlabs/php_codesniffer": "^4"
+                "squizlabs/php_codesniffer": "^3.8"
             },
             "type": "library",
             "autoload": {
@@ -1093,7 +1093,7 @@
                     "homepage": "https://intervention.io/"
                 }
             ],
-            "description": "PHP GIF Encoder/Decoder",
+            "description": "Native PHP GIF Encoder/Decoder",
             "homepage": "https://github.com/intervention/gif",
             "keywords": [
                 "animation",
@@ -1103,7 +1103,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Intervention/gif/issues",
-                "source": "https://github.com/Intervention/gif/tree/5.0.0"
+                "source": "https://github.com/Intervention/gif/tree/4.2.4"
             },
             "funding": [
                 {
@@ -1119,33 +1119,33 @@
                     "type": "ko_fi"
                 }
             ],
-            "time": "2026-03-21T05:08:17+00:00"
+            "time": "2026-01-04T09:27:23+00:00"
         },
         {
             "name": "intervention/image",
-            "version": "4.0.0",
+            "version": "3.11.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/image.git",
-                "reference": "66865f150576ab36e72d1096e8e108c072d40fff"
+                "reference": "2159bcccff18f09d2a392679b81a82c5a003f9bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/66865f150576ab36e72d1096e8e108c072d40fff",
-                "reference": "66865f150576ab36e72d1096e8e108c072d40fff",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/2159bcccff18f09d2a392679b81a82c5a003f9bb",
+                "reference": "2159bcccff18f09d2a392679b81a82c5a003f9bb",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "intervention/gif": "^5",
-                "php": "^8.3"
+                "intervention/gif": "^4.2",
+                "php": "^8.1"
             },
             "require-dev": {
                 "mockery/mockery": "^1.6",
                 "phpstan/phpstan": "^2.1",
-                "phpunit/phpunit": "^12.0",
+                "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
                 "slevomat/coding-standard": "~8.0",
-                "squizlabs/php_codesniffer": "^4"
+                "squizlabs/php_codesniffer": "^3.8"
             },
             "suggest": {
                 "ext-exif": "Recommended to be able to read EXIF data properly."
@@ -1179,7 +1179,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Intervention/image/issues",
-                "source": "https://github.com/Intervention/image/tree/4.0.0"
+                "source": "https://github.com/Intervention/image/tree/3.11.7"
             },
             "funding": [
                 {
@@ -1195,20 +1195,20 @@
                     "type": "ko_fi"
                 }
             ],
-            "time": "2026-03-28T07:02:39+00:00"
+            "time": "2026-02-19T13:11:17+00:00"
         },
         {
             "name": "laravel/framework",
-            "version": "v13.2.0",
+            "version": "v13.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "9e48d1fe933e89de628dafa167d2c5778566d4cf"
+                "reference": "118b7063c44a2f3421d1646f5ddf08defcfd1db3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/9e48d1fe933e89de628dafa167d2c5778566d4cf",
-                "reference": "9e48d1fe933e89de628dafa167d2c5778566d4cf",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/118b7063c44a2f3421d1646f5ddf08defcfd1db3",
+                "reference": "118b7063c44a2f3421d1646f5ddf08defcfd1db3",
                 "shasum": ""
             },
             "require": {
@@ -1326,6 +1326,7 @@
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^11.5.50 || ^12.5.8 || ^13.0.3",
                 "predis/predis": "^2.3 || ^3.0",
+                "rector/rector": "^2.3",
                 "resend/resend-php": "^1.0",
                 "symfony/cache": "^7.4.0 || ^8.0.0",
                 "symfony/http-client": "^7.4.0 || ^8.0.0",
@@ -1416,7 +1417,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-03-24T18:42:09+00:00"
+            "time": "2026-04-01T15:39:53+00:00"
         },
         {
             "name": "laravel/prompts",
@@ -2814,6 +2815,69 @@
                 }
             ],
             "time": "2025-12-27T19:41:33+00:00"
+        },
+        {
+            "name": "predis/predis",
+            "version": "v3.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/predis/predis.git",
+                "reference": "2033429520d8997a7815a2485f56abe6d2d0e075"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/predis/predis/zipball/2033429520d8997a7815a2485f56abe6d2d0e075",
+                "reference": "2033429520d8997a7815a2485f56abe6d2d0e075",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0",
+                "psr/http-message": "^1.0|^2.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.3",
+                "phpstan/phpstan": "^1.9",
+                "phpunit/phpcov": "^6.0 || ^8.0",
+                "phpunit/phpunit": "^8.0 || ~9.4.4"
+            },
+            "suggest": {
+                "ext-relay": "Faster connection with in-memory caching (>=0.6.2)"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Predis\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Till Krüss",
+                    "homepage": "https://till.im",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "A flexible and feature-complete Redis/Valkey client for PHP.",
+            "homepage": "http://github.com/predis/predis",
+            "keywords": [
+                "nosql",
+                "predis",
+                "redis"
+            ],
+            "support": {
+                "issues": "https://github.com/predis/predis/issues",
+                "source": "https://github.com/predis/predis/tree/v3.4.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/tillkruss",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-03-09T20:33:04+00:00"
         },
         {
             "name": "psr/clock",
@@ -7056,33 +7120,33 @@
         },
         {
             "name": "pestphp/pest",
-            "version": "v4.4.3",
+            "version": "v4.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pestphp/pest.git",
-                "reference": "e6ab897594312728ef2e32d586cb4f6780b1b495"
+                "reference": "9797a71dbc776f46d6fcacb708b002755da6f37a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pestphp/pest/zipball/e6ab897594312728ef2e32d586cb4f6780b1b495",
-                "reference": "e6ab897594312728ef2e32d586cb4f6780b1b495",
+                "url": "https://api.github.com/repos/pestphp/pest/zipball/9797a71dbc776f46d6fcacb708b002755da6f37a",
+                "reference": "9797a71dbc776f46d6fcacb708b002755da6f37a",
                 "shasum": ""
             },
             "require": {
-                "brianium/paratest": "^7.19.2",
-                "nunomaduro/collision": "^8.9.1",
+                "brianium/paratest": "^7.20.0",
+                "nunomaduro/collision": "^8.9.2",
                 "nunomaduro/termwind": "^2.4.0",
                 "pestphp/pest-plugin": "^4.0.0",
                 "pestphp/pest-plugin-arch": "^4.0.0",
                 "pestphp/pest-plugin-mutate": "^4.0.1",
                 "pestphp/pest-plugin-profanity": "^4.2.1",
                 "php": "^8.3.0",
-                "phpunit/phpunit": "^12.5.14",
-                "symfony/process": "^7.4.5|^8.0.5"
+                "phpunit/phpunit": "^12.5.16",
+                "symfony/process": "^7.4.8|^8.0.8"
             },
             "conflict": {
                 "filp/whoops": "<2.18.3",
-                "phpunit/phpunit": ">12.5.14",
+                "phpunit/phpunit": ">12.5.16",
                 "sebastian/exporter": "<7.0.0",
                 "webmozart/assert": "<1.11.0"
             },
@@ -7090,7 +7154,7 @@
                 "pestphp/pest-dev-tools": "^4.1.0",
                 "pestphp/pest-plugin-browser": "^4.3.0",
                 "pestphp/pest-plugin-type-coverage": "^4.0.3",
-                "psy/psysh": "^0.12.21"
+                "psy/psysh": "^0.12.22"
             },
             "bin": [
                 "bin/pest"
@@ -7156,7 +7220,7 @@
             ],
             "support": {
                 "issues": "https://github.com/pestphp/pest/issues",
-                "source": "https://github.com/pestphp/pest/tree/v4.4.3"
+                "source": "https://github.com/pestphp/pest/tree/v4.4.5"
             },
             "funding": [
                 {
@@ -7168,7 +7232,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-21T13:14:39+00:00"
+            "time": "2026-04-03T13:43:28+00:00"
         },
         {
             "name": "pestphp/pest-plugin",
@@ -8205,16 +8269,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.14",
+            "version": "12.5.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "47283cfd98d553edcb1353591f4e255dc1bb61f0"
+                "reference": "b2429f58ae75cae980b5bb9873abe4de6aac8b58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/47283cfd98d553edcb1353591f4e255dc1bb61f0",
-                "reference": "47283cfd98d553edcb1353591f4e255dc1bb61f0",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b2429f58ae75cae980b5bb9873abe4de6aac8b58",
+                "reference": "b2429f58ae75cae980b5bb9873abe4de6aac8b58",
                 "shasum": ""
             },
             "require": {
@@ -8236,7 +8300,7 @@
                 "sebastian/cli-parser": "^4.2.0",
                 "sebastian/comparator": "^7.1.4",
                 "sebastian/diff": "^7.0.0",
-                "sebastian/environment": "^8.0.3",
+                "sebastian/environment": "^8.0.4",
                 "sebastian/exporter": "^7.0.2",
                 "sebastian/global-state": "^8.0.2",
                 "sebastian/object-enumerator": "^7.0.0",
@@ -8283,31 +8347,15 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.14"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.16"
             },
             "funding": [
                 {
-                    "url": "https://phpunit.de/sponsors.html",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/sebastianbergmann",
-                    "type": "github"
-                },
-                {
-                    "url": "https://liberapay.com/sebastianbergmann",
-                    "type": "liberapay"
-                },
-                {
-                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
-                    "type": "thanks_dev"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/phpunit/phpunit",
-                    "type": "tidelift"
+                    "url": "https://phpunit.de/sponsoring.html",
+                    "type": "other"
                 }
             ],
-            "time": "2026-02-18T12:38:40+00:00"
+            "time": "2026-04-03T05:26:42+00:00"
         },
         {
             "name": "sebastian/cli-parser",

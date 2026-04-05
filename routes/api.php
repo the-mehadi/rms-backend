@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MenuItemController;
@@ -21,6 +22,10 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/menu-items', [MenuItemController::class, 'index']);
 Route::get('/menu-items/{id}', [MenuItemController::class, 'show']);
 Route::get('/menu-items/{menu_item}/images', [MenuItemImageController::class, 'index']);
+
+Route::get('/tables', [TableController::class, 'index']);
+Route::get('/tables/{table}', [TableController::class, 'show']);
+
 
 // ─── Protected Routes (requires Sanctum token) ───────────────────────────────
 Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
@@ -50,4 +55,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     Route::post('/menu-items/{menu_item}/images', [MenuItemImageController::class, 'store']);
     Route::delete('/menu-items/{menu_item}/images/{image}', [MenuItemImageController::class, 'destroy']);
+});
+
+// ─── Tables Routes ───────────────────────────────────────────────────────────
+Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('role:admin')->group(function () {
+        Route::post('/tables', [TableController::class, 'store']);
+        Route::put('/tables/{table}', [TableController::class, 'update']);
+
+    });
+    Route::middleware('role:admin,cashier')->patch('/tables/{table}/status', [TableController::class, 'updateStatus']);
 });
