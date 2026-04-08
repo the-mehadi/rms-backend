@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\MenuItemImageController;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -65,4 +66,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     });
     Route::middleware('role:admin,cashier')->patch('/tables/{table}/status', [TableController::class, 'updateStatus']);
+});
+
+// ─── Orders Routes ───────────────────────────────────────────────────────────
+Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('role:admin,cashier')->get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::middleware('role:cashier')->get('/orders/table/{table_id}', [OrderController::class, 'showByTable']);
+    Route::middleware('role:cashier,admin')->post('/orders', [OrderController::class, 'store']);
+    Route::middleware('role:cashier')->post('/orders/{id}/items', [OrderController::class, 'addItem']);
+    Route::middleware('role:kitchen')->patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+    Route::middleware('role:cashier')->delete('/orders/{id}', [OrderController::class, 'destroy']);
 });
