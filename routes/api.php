@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\BillController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\MenuItemImageController;
 use App\Http\Controllers\Order\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -77,4 +79,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:cashier')->post('/orders/{id}/items', [OrderController::class, 'addItem']);
     Route::middleware('role:kitchen')->patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     Route::middleware('role:cashier')->delete('/orders/{id}', [OrderController::class, 'destroy']);
+
+    // ─── Billing & Payments ──────────────────────────────────────────────────
+    Route::middleware('role:admin,cashier')->get('/bills', [BillController::class, 'index']);
+    Route::middleware('role:admin,cashier')->get('/bills/{id}', [BillController::class, 'show']);
+    Route::middleware('role:cashier')->post('/bills', [BillController::class, 'store']);
+    Route::middleware('role:cashier')->get('/bills/{id}/receipt', [BillController::class, 'receipt']);
+
+    Route::middleware('role:cashier')->post('/payments', [PaymentController::class, 'store']);
 });
+
