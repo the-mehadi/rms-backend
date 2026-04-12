@@ -90,4 +90,13 @@ class TableController extends Controller
             'data' => new TableResource($table),
         ]);
     }
+    public function destroy(Table $table): JsonResponse
+    {
+        $table->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Table delete successfully."
+        ]);
+    }
 }

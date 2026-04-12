@@ -65,7 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::post('/tables', [TableController::class, 'store']);
         Route::put('/tables/{table}', [TableController::class, 'update']);
-
+        Route::delete('/tables/{table}', [TableController::class, 'destroy']);
     });
     Route::middleware('role:admin,cashier')->patch('/tables/{table}/status', [TableController::class, 'updateStatus']);
 });
@@ -88,4 +88,3 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:cashier')->post('/payments', [PaymentController::class, 'store']);
 });
-
