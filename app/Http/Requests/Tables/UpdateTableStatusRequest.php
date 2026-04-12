@@ -22,7 +22,7 @@ class UpdateTableStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'required|in:available,occupied',
+            'status' => 'required|in:available,occupied,reserved',
         ];
     }
 }
