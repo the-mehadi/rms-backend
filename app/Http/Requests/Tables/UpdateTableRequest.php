@@ -30,7 +30,7 @@ class UpdateTableRequest extends FormRequest
                 Rule::unique('tables')->ignore($this->route('table')?->id ?? $this->route('table')),
             ],
             'capacity' => 'sometimes|integer|min:1',
-            'status' => 'sometimes|in:available,occupied',
+            'status' => 'sometimes|in:available,occupied,reserved',
         ];
     }
 }
