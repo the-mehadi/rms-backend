@@ -64,11 +64,6 @@ class TableController extends Controller
      */
     public function update(UpdateTableRequest $request, Table $table): JsonResponse
     {
-        return response()->json([
-            'success' => false,
-            'message' => 'Table update is currently disabled.',
-            'data' => $request->all(),
-        ], 200);
         $table = $this->tableService->update($table, $request->validated());
         return response()->json([
             'success' => true,
