@@ -16,6 +16,13 @@ class StoreOrderRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('notes')) {
+            $this->merge(['special_note' => $this->input('notes')]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      */
@@ -24,6 +31,10 @@ class StoreOrderRequest extends FormRequest
         return [
             'table_id' => ['required', 'integer', 'exists:tables,id'],
             'special_note' => ['nullable', 'string', 'max:1000'],
+            'items' => ['nullable', 'array', 'min:1'],
+            'items.*.menu_item_id' => ['required', 'integer', 'exists:menu_items,id'],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 
@@ -36,6 +47,15 @@ class StoreOrderRequest extends FormRequest
             'table_id.required' => 'Table ID is required.',
             'table_id.exists' => 'Selected table does not exist.',
             'special_note.max' => 'Special note must not exceed 1000 characters.',
+            'items.array' => 'Items must be an array.',
+            'items.min' => 'At least one item is required.',
+            'items.*.menu_item_id.required' => 'Menu item ID is required for each item.',
+            'items.*.menu_item_id.exists' => 'Selected menu item does not exist.',
+            'items.*.quantity.required' => 'Quantity is required for each item.',
+            'items.*.quantity.integer' => 'Quantity must be an integer.',
+            'items.*.quantity.min' => 'Quantity must be at least 1.',
+            'items.*.unit_price.numeric' => 'Unit price must be a valid number.',
+            'items.*.unit_price.min' => 'Unit price must be at least 0.',
         ];
     }
 

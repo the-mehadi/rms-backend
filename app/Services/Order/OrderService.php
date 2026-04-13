@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 class OrderService
@@ -53,10 +54,30 @@ class OrderService
             throw new InvalidArgumentException('Table already has an active order.');
         }
 
-        $data['user_id'] = $user->id;
-        $data['status'] = 'pending';
+        $orderPayload = [
+            'table_id' => $data['table_id'],
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'special_note' => $data['special_note'] ?? null,
+        ];
 
-        return Order::create($data);
+        return DB::transaction(function () use ($orderPayload, $data) {
+            $order = Order::create($orderPayload);
+
+            if (!empty($data['items']) && is_array($data['items'])) {
+                foreach ($data['items'] as $item) {
+                    $menuItem = MenuItem::findOrFail($item['menu_item_id']);
+
+                    $order->items()->create([
+                        'menu_item_id' => $item['menu_item_id'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['unit_price'] ?? $menuItem->price,
+                    ]);
+                }
+            }
+
+            return $order->fresh(['table', 'user', 'items.menuItem']);
+        });
     }
 
     /**
