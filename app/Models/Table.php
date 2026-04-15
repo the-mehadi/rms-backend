@@ -18,4 +18,11 @@ class Table extends Model
     protected $casts = [
         'status' => 'string',
     ];
+    public function activeOrder()
+    {
+        return $this->hasOne(Order::class)
+            ->whereNotIn('status', ['served', 'cancelled'])
+            ->whereDate('created_at', today())
+            ->select('id', 'table_id', 'status', 'priority');
+    }
 }

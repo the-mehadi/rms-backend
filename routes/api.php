@@ -74,10 +74,10 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin,cashier')->get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
-    Route::middleware('role:cashier')->get('/orders/table/{table_id}', [OrderController::class, 'showByTable']);
+    Route::middleware('role:cashier,admin')->get('/orders/table/{table_id}', [OrderController::class, 'showByTable']);
     Route::middleware('role:cashier,admin')->post('/orders', [OrderController::class, 'store']);
     Route::middleware('role:cashier')->post('/orders/{id}/items', [OrderController::class, 'addItem']);
-    Route::middleware('role:kitchen')->patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+    Route::middleware('role:kitchen,cashier')->patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     Route::middleware('role:cashier')->delete('/orders/{id}', [OrderController::class, 'destroy']);
     Route::middleware('role:kitchen,admin')->get('/kitchen/orders', [OrderController::class, 'kitchenView']);
 

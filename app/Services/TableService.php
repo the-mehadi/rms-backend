@@ -13,7 +13,10 @@ class TableService
      */
     public function getAll()
     {
-        return Table::orderBy('table_number')->get();
+        // return Table::with('activeOrder')->orderBy('table_number')->get();
+        return Table::with('activeOrder')
+            ->orderBy('table_number')
+            ->get();
     }
 
     /**

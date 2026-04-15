@@ -20,6 +20,7 @@ class TableResource extends JsonResource
             'capacity' => $this->capacity,
             'status' => $this->status,
             'created_at' => $this->created_at,
+            'active_order' => $this->whenLoaded('activeOrder'),
         ];
     }
 }
