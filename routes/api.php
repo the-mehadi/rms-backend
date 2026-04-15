@@ -79,6 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:cashier')->post('/orders/{id}/items', [OrderController::class, 'addItem']);
     Route::middleware('role:kitchen')->patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
     Route::middleware('role:cashier')->delete('/orders/{id}', [OrderController::class, 'destroy']);
+    Route::middleware('role:kitchen,admin')->get('/kitchen/orders', [OrderController::class, 'kitchenView']);
 
     // ─── Billing & Payments ──────────────────────────────────────────────────
     Route::middleware('role:admin,cashier')->get('/bills', [BillController::class, 'index']);

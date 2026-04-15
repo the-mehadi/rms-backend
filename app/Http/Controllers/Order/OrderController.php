@@ -7,6 +7,7 @@ use App\Http\Requests\Order\AddOrderItemRequest;
 use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Requests\Order\UpdateOrderStatusRequest;
 use App\Http\Resources\OrderResource;
+use App\Models\Order;
 use App\Services\Order\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -129,5 +130,16 @@ class OrderController extends Controller
             'message' => 'Order cancelled successfully.',
             'data' => OrderResource::make($order),
         ], 200);
+    }
+    public function kitchenView()
+    {
+        $orders = Order::with(['items.menuItem','table'])
+            ->whereIn('status', ['pending', 'preparing', 'ready'])
+            ->whereDate('created_at', today())
+            ->orderByRaw("FIELD(priority, 'rush', 'high', 'normal')")
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json($orders);
     }
 }
