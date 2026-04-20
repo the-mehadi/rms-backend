@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Services\Order\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -79,15 +80,85 @@ class OrderController extends Controller
     /**
      * Create a new order.
      */
-    public function store(StoreOrderRequest $request): JsonResponse
-    {
-        $order = $this->orderService->createOrder($request->validated(), $request->user());
+    // public function store(StoreOrderRequest $request): JsonResponse
+    // {
+    //     $order = $this->orderService->createOrder($request->validated(), $request->user());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Order created successfully.',
-            'data' => OrderResource::make($order->load(['table', 'user', 'items.menuItem'])),
-        ], 201);
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Order created successfully.',
+    //         'data' => OrderResource::make($order->load(['table', 'user', 'items.menuItem'])),
+    //     ], 201);
+    // }
+
+     public function store(StoreOrderRequest $request): JsonResponse
+    {
+        try {
+            $order = $this->orderService->createOrder(
+                $request->validated(),
+                $request->user()
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order created successfully.',
+                'data' => OrderResource::make($order->load(['table', 'user', 'items.menuItem'])),
+            ], 201);
+
+        } catch (\InvalidArgumentException $e) {
+            // Business logic errors
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Model not found
+            return response()->json([
+                'success' => false,
+                'message' => 'Resource not found.',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 404);
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Database errors
+            Log::error('Database error in order creation', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'request' => $request->all(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => config('app.debug') ? $e->getMessage() : 'Database error occurred.',
+                'error' => config('app.debug') ? [
+                    'code' => $e->getCode(),
+                    'previous' => $e->getPrevious()?->getMessage(),
+                ] : null
+            ], 500);
+
+        } catch (\Throwable $e) {
+            // General errors (Laravel 13 uses Throwable)
+            Log::error('Order creation failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all(),
+                'user_id' => $request->user()?->id,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => config('app.debug') ? $e->getMessage() : 'Server error occurred.',
+                'error' => config('app.debug') ? [
+                    'exception' => $e::class,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => collect(explode("\n", $e->getTraceAsString()))->take(5)->toArray()
+                ] : null
+            ], 500);
+        }
     }
 
     /**

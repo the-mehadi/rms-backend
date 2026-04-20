@@ -84,8 +84,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // ─── Billing & Payments ──────────────────────────────────────────────────
     Route::middleware('role:admin,cashier')->get('/bills', [BillController::class, 'index']);
     Route::middleware('role:admin,cashier')->get('/bills/{id}', [BillController::class, 'show']);
-    Route::middleware('role:cashier')->post('/bills', [BillController::class, 'store']);
-    Route::middleware('role:cashier')->get('/bills/{id}/receipt', [BillController::class, 'receipt']);
+    Route::middleware('role:admin,cashier')->post('/bills', [BillController::class, 'store']);
+    Route::middleware('role:admin,cashier')->get('/bills/{id}/receipt', [BillController::class, 'receipt']);
 
-    Route::middleware('role:cashier')->post('/payments', [PaymentController::class, 'store']);
+    Route::middleware('role:admin,cashier')->post('/payments', [PaymentController::class, 'store']);
 });
