@@ -16,7 +16,7 @@ class StoreBillRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'order_id' => ['required', 'integer', 'exists:orders,id'],
+            'table_id' => ['required', 'integer', 'exists:tables,id'],
             'discount' => ['nullable', 'numeric', 'min:0'],
             'vat' => ['nullable', 'numeric', 'min:0'],
         ];
@@ -25,8 +25,8 @@ class StoreBillRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'order_id.required' => 'Order ID is required.',
-            'order_id.exists' => 'Selected order does not exist.',
+            'table_id.required' => 'Table ID is required.',
+            'table_id.exists' => 'Selected table does not exist.',
             'discount.numeric' => 'Discount must be a number.',
             'discount.min' => 'Discount must be at least 0.',
             'vat.numeric' => 'VAT must be a number.',
@@ -45,4 +45,3 @@ class StoreBillRequest extends FormRequest
         );
     }
 }
-

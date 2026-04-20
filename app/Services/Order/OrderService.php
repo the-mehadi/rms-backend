@@ -42,18 +42,76 @@ class OrderService
     }
 
     /**
+     * Get all unpaid orders for a table.
+     * Includes orders where payment status is unpaid OR no payment record exists.
+     * Excludes cancelled orders.
+     */
+    public function getUnpaidOrdersByTable(int $tableId): array
+    {
+        return Order::with(['table', 'user', 'items.menuItem'])
+            ->where('table_id', $tableId)
+            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('id', function ($query) {
+                $query->select('orders.id')
+                    ->from('orders')
+                    ->leftJoin('bill_orders', 'orders.id', '=', 'bill_orders.order_id')
+                    ->leftJoin('bills', 'bill_orders.bill_id', '=', 'bills.id')
+                    ->where('bills.status', 'paid');
+            })
+            ->orderBy('created_at')
+            ->get()
+            ->toArray();
+    }
+
+    /**
+     * Get bill summary for a table (all unpaid orders merged).
+     */
+    public function getTableBillSummary(int $tableId): array
+    {
+        $orders = Order::with('items')
+            ->where('table_id', $tableId)
+            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('id', function ($query) {
+                $query->select('orders.id')
+                    ->from('orders')
+                    ->leftJoin('bill_orders', 'orders.id', '=', 'bill_orders.order_id')
+                    ->leftJoin('bills', 'bill_orders.bill_id', '=', 'bills.id')
+                    ->where('bills.status', 'paid');
+            })
+            ->get();
+
+        $subtotal = 0;
+        $orderIds = [];
+
+        foreach ($orders as $order) {
+            $orderIds[] = $order->id;
+            foreach ($order->items as $item) {
+                $subtotal += $item->price * $item->quantity;
+            }
+        }
+
+        $vat = $subtotal * 0.05; // 5% VAT
+        $grandTotal = $subtotal + $vat;
+
+        return [
+            'table_id' => $tableId,
+            'order_ids' => $orderIds,
+            'subtotal' => round($subtotal, 2),
+            'vat' => round($vat, 2),
+            'discount' => 0,
+            'grand_total' => round($grandTotal, 2),
+            'order_count' => count($orderIds),
+        ];
+    }
+
+    /**
      * Create a new order.
+     * Allows multiple orders per table - all unpaid orders are merged into a single bill.
      *
      * @throws InvalidArgumentException
      */
     public function createOrder(array $data, User $user): Order
     {
-        // Check if table already has an active order
-        $existingOrder = $this->getOrderByTable($data['table_id']);
-        if ($existingOrder) {
-            throw new InvalidArgumentException('Table already has an active order.');
-        }
-
         $orderPayload = [
             'table_id' => $data['table_id'],
             'user_id' => $user->id,

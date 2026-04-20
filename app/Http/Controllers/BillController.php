@@ -6,6 +6,7 @@ use App\Http\Requests\Billing\StoreBillRequest;
 use App\Http\Resources\BillResource;
 use App\Http\Resources\ReceiptResource;
 use App\Services\Billing\BillingService;
+use App\Services\Order\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
@@ -14,6 +15,7 @@ class BillController extends Controller
 {
     public function __construct(
         private readonly BillingService $billingService,
+        private readonly OrderService $orderService,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -53,10 +55,10 @@ class BillController extends Controller
 
         try {
             $bill = $this->billingService->createBill(
-                (int) $data['order_id'],
+                (int) $data['table_id'],
                 (int) $request->user()->id,
                 (float) ($data['discount'] ?? 0),
-                (float) ($data['vat'] ?? 0),
+                (float) ($data['vat'] ?? 5), // Default to 5% VAT
             );
 
             return response()->json([
@@ -72,6 +74,28 @@ class BillController extends Controller
         }
     }
 
+    /**
+     * Get current unpaid bill summary for a table.
+     * Returns merged total of all unpaid orders.
+     */
+    public function billSummary(int $tableId): JsonResponse
+    {
+        try {
+            $summary = $this->orderService->getTableBillSummary($tableId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Bill summary retrieved successfully.',
+                'data' => $summary,
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Table not found.',
+            ], 404);
+        }
+    }
+
     public function receipt(int $id): JsonResponse
     {
         $bill = $this->billingService->getReceipt($id);
@@ -83,4 +107,3 @@ class BillController extends Controller
         ], 200);
     }
 }
-

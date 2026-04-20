@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Bill extends Model
@@ -12,7 +13,7 @@ class Bill extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_id',
+        'table_id',
         'user_id',
         'subtotal',
         'discount',
@@ -29,9 +30,9 @@ class Bill extends Model
         'status' => 'string',
     ];
 
-    public function order(): BelongsTo
+    public function table(): BelongsTo
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Table::class);
     }
 
     public function cashier(): BelongsTo
@@ -39,9 +40,14 @@ class Bill extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    // Multiple orders for this bill (through pivot table)
+    public function orders(): BelongsToMany
+    {
+        return $this->belongsToMany(Order::class, 'bill_orders', 'bill_id', 'order_id');
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
     }
 }
-

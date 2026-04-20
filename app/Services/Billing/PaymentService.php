@@ -35,11 +35,16 @@ class PaymentService
             ]);
 
             $newTotalPaid = $alreadyPaid + $amount;
-            $bill->status = $newTotalPaid >= (float) $bill->total_amount ? 'paid' : 'unpaid';
+            $isPaid = $newTotalPaid >= (float) $bill->total_amount;
+            $bill->status = $isPaid ? 'paid' : 'unpaid';
             $bill->save();
+
+            // If bill is fully paid, mark table as free
+            if ($isPaid) {
+                $bill->table->update(['status' => 'free']);
+            }
 
             return $payment;
         });
     }
 }
-

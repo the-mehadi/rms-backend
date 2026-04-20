@@ -27,5 +27,14 @@ class Payment extends Model
     {
         return $this->belongsTo(Bill::class);
     }
-}
 
+    // Get all orders related to this payment through the bill (requires bill to be loaded)
+    public function orders()
+    {
+        if ($this->relationLoaded('bill') && $this->bill) {
+            return $this->bill->orders();
+        }
+        // Fallback: load bill and orders
+        return $this->load('bill')->bill->orders();
+    }
+}

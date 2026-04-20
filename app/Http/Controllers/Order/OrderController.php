@@ -57,23 +57,24 @@ class OrderController extends Controller
     }
 
     /**
-     * Get active order for a table.
+     * Get all unpaid orders for a table.
+     * Multiple orders can exist until payment is made.
      */
     public function showByTable(int $tableId): JsonResponse
     {
-        $order = $this->orderService->getOrderByTable($tableId);
+        $orders = $this->orderService->getUnpaidOrdersByTable($tableId);
 
-        if (!$order) {
+        if (empty($orders)) {
             return response()->json([
                 'success' => false,
-                'message' => 'No active order found for this table.',
+                'message' => 'No unpaid orders found for this table.',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Order retrieved successfully.',
-            'data' => OrderResource::make($order),
+            'message' => 'Unpaid orders retrieved successfully.',
+            'data' => OrderResource::collection($orders)->resolve(),
         ], 200);
     }
 
@@ -91,7 +92,7 @@ class OrderController extends Controller
     //     ], 201);
     // }
 
-     public function store(StoreOrderRequest $request): JsonResponse
+    public function store(StoreOrderRequest $request): JsonResponse
     {
         try {
             $order = $this->orderService->createOrder(
@@ -104,14 +105,12 @@ class OrderController extends Controller
                 'message' => 'Order created successfully.',
                 'data' => OrderResource::make($order->load(['table', 'user', 'items.menuItem'])),
             ], 201);
-
         } catch (\InvalidArgumentException $e) {
             // Business logic errors
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
             ], 400);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Model not found
             return response()->json([
@@ -119,7 +118,6 @@ class OrderController extends Controller
                 'message' => 'Resource not found.',
                 'error' => config('app.debug') ? $e->getMessage() : null
             ], 404);
-
         } catch (\Illuminate\Database\QueryException $e) {
             // Database errors
             Log::error('Database error in order creation', [
@@ -136,7 +134,6 @@ class OrderController extends Controller
                     'previous' => $e->getPrevious()?->getMessage(),
                 ] : null
             ], 500);
-
         } catch (\Throwable $e) {
             // General errors (Laravel 13 uses Throwable)
             Log::error('Order creation failed', [
@@ -204,7 +201,7 @@ class OrderController extends Controller
     }
     public function kitchenView()
     {
-        $orders = Order::with(['items.menuItem','table'])
+        $orders = Order::with(['items.menuItem', 'table'])
             ->whereIn('status', ['pending', 'preparing', 'ready'])
             ->whereDate('created_at', today())
             ->orderByRaw("FIELD(priority, 'rush', 'high', 'normal')")

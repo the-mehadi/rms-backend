@@ -4,6 +4,7 @@ namespace App\Services\Billing;
 
 use App\Models\Bill;
 use App\Models\Order;
+use App\Models\Table;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -13,7 +14,7 @@ class BillingService
     public function getAllBills(int $perPage = 15): LengthAwarePaginator
     {
         return Bill::query()
-            ->with(['order', 'cashier'])
+            ->with(['table', 'orders.items.menuItem', 'cashier', 'payments'])
             ->latest('created_at')
             ->paginate($perPage);
     }
@@ -21,28 +22,51 @@ class BillingService
     public function getBillById(int $id): Bill
     {
         return Bill::query()
-            ->with(['order.items.menuItem', 'payments'])
+            ->with(['table', 'orders.items.menuItem', 'cashier', 'payments'])
             ->findOrFail($id);
     }
 
-    public function createBill(int $orderId, int $userId, float $discount = 0.0, float $vat = 0.0): Bill
+    /**
+     * Create a merged bill for all unpaid orders of a table.
+     *
+     * @param int $tableId
+     * @param int $userId
+     * @param float $discount
+     * @param float $vat (as percentage, defaults to 5%)
+     * @return Bill
+     * @throws InvalidArgumentException
+     */
+    public function createBill(int $tableId, int $userId, float $discount = 0.0, float $vat = 5.0): Bill
     {
-        return DB::transaction(function () use ($orderId, $userId, $discount, $vat) {
-            $order = Order::query()
+        return DB::transaction(function () use ($tableId, $userId, $discount, $vat) {
+            $table = Table::query()->lockForUpdate()->findOrFail($tableId);
+
+            // Get all unpaid orders for this table
+            $unpaidOrders = Order::query()
                 ->with('items')
+                ->where('table_id', $tableId)
+                ->where('status', '!=', 'cancelled')
+                ->whereNotIn('id', function ($query) {
+                    $query->select('orders.id')
+                        ->from('orders')
+                        ->leftJoin('bill_orders', 'orders.id', '=', 'bill_orders.order_id')
+                        ->leftJoin('bills', 'bill_orders.bill_id', '=', 'bills.id')
+                        ->where('bills.status', 'paid');
+                })
                 ->lockForUpdate()
-                ->findOrFail($orderId);
+                ->get();
 
-            if ($order->status !== 'served') {
-                throw new InvalidArgumentException('Bill can only be created for served orders.');
+            if ($unpaidOrders->isEmpty()) {
+                throw new InvalidArgumentException('No unpaid orders found for this table.');
             }
 
-            $existingBill = Bill::query()->where('order_id', $order->id)->lockForUpdate()->first();
-            if ($existingBill) {
-                throw new InvalidArgumentException('A bill already exists for this order.');
+            // Calculate subtotal from all orders
+            $subtotal = 0.0;
+            foreach ($unpaidOrders as $order) {
+                foreach ($order->items as $item) {
+                    $subtotal += (float) $item->price * (int) $item->quantity;
+                }
             }
-
-            $subtotal = (float) $order->items->sum(fn ($item) => (float) $item->price * (int) $item->quantity);
 
             if ($discount < 0 || $vat < 0) {
                 throw new InvalidArgumentException('Discount and VAT must be non-negative.');
@@ -52,25 +76,33 @@ class BillingService
                 throw new InvalidArgumentException('Discount cannot exceed subtotal.');
             }
 
-            $totalAmount = $subtotal - $discount + $vat;
+            // Calculate VAT based on percentage
+            $vatAmount = ($subtotal - $discount) * ($vat / 100);
+            $totalAmount = ($subtotal - $discount) + $vatAmount;
 
-            return Bill::query()->create([
-                'order_id' => $order->id,
+            // Create the bill
+            $bill = Bill::query()->create([
+                'table_id' => $tableId,
                 'user_id' => $userId,
-                'subtotal' => $subtotal,
-                'discount' => $discount,
-                'vat' => $vat,
-                'total_amount' => $totalAmount,
+                'subtotal' => round($subtotal, 2),
+                'discount' => round($discount, 2),
+                'vat' => round($vatAmount, 2),
+                'total_amount' => round($totalAmount, 2),
                 'status' => 'unpaid',
             ]);
+
+            // Link all unpaid orders to this bill
+            $orderIds = $unpaidOrders->pluck('id')->toArray();
+            $bill->orders()->attach($orderIds);
+
+            return $bill->fresh(['table', 'orders.items.menuItem', 'cashier']);
         });
     }
 
     public function getReceipt(int $billId): Bill
     {
         return Bill::query()
-            ->with(['order.items.menuItem', 'payments'])
+            ->with(['table', 'orders.items.menuItem', 'cashier', 'payments'])
             ->findOrFail($billId);
     }
 }
-

@@ -11,14 +11,19 @@ class BillResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'order_id' => $this->order_id,
+            'table_id' => $this->table_id,
+            'table' => $this->whenLoaded('table'),
+            'orders' => OrderResource::collection($this->whenLoaded('orders')),
             'user_id' => $this->user_id,
-            'subtotal' => $this->subtotal,
-            'discount' => $this->discount,
-            'vat' => $this->vat,
-            'total_amount' => $this->total_amount,
+            'cashier' => $this->whenLoaded('cashier'),
+            'subtotal' => (float) $this->subtotal,
+            'discount' => (float) $this->discount,
+            'vat' => (float) $this->vat,
+            'total_amount' => (float) $this->total_amount,
             'status' => $this->status,
+            'payments' => PaymentResource::collection($this->whenLoaded('payments')),
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
 }
-

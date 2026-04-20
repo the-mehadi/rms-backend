@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -39,6 +40,13 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    // Multiple bills can contain this order (through pivot table)
+    public function bills(): BelongsToMany
+    {
+        return $this->belongsToMany(Bill::class, 'bill_orders', 'order_id', 'bill_id');
+    }
+
+    // Legacy: Keep for backward compatibility if needed
     public function bill(): HasOne
     {
         return $this->hasOne(Bill::class);
