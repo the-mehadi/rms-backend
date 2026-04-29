@@ -46,7 +46,7 @@ class OrderService
      * Includes orders where payment status is unpaid OR no payment record exists.
      * Excludes cancelled orders.
      */
-    public function getUnpaidOrdersByTable(int $tableId): array
+    public function getUnpaidOrdersByTable(int $tableId)
     {
         return Order::with(['table', 'user', 'items.menuItem'])
             ->where('table_id', $tableId)
@@ -59,8 +59,7 @@ class OrderService
                     ->where('bills.status', 'paid');
             })
             ->orderBy('created_at')
-            ->get()
-            ->toArray();
+            ->get();
     }
 
     /**

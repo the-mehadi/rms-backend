@@ -63,7 +63,6 @@ class OrderController extends Controller
     public function showByTable(int $tableId): JsonResponse
     {
         $orders = $this->orderService->getUnpaidOrdersByTable($tableId);
-
         if (empty($orders)) {
             return response()->json([
                 'success' => false,
