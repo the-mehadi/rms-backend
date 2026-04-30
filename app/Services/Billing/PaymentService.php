@@ -39,9 +39,9 @@ class PaymentService
             $bill->status = $isPaid ? 'paid' : 'unpaid';
             $bill->save();
 
-            // If bill is fully paid, mark table as free
+            // If bill is fully paid, mark table as available
             if ($isPaid) {
-                $bill->table->update(['status' => 'free']);
+                $bill->table->update(['status' => 'available']);
             }
 
             return $payment;
