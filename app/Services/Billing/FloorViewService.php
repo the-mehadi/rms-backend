@@ -4,6 +4,7 @@ namespace App\Services\Billing;
 
 use App\Models\Order;
 use App\Models\Table;
+use Illuminate\Support\Collection;
 
 
 class FloorViewService
@@ -20,7 +21,14 @@ class FloorViewService
 
         // Fetch all unpaid orders with eager loading
         $unpaidOrders = Order::with(['items', 'user'])
-            ->whereIn('status', ['pending', 'preparing', 'ready', 'served'])
+            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('id', function ($query) {
+                $query->select('orders.id')
+                    ->from('orders')
+                    ->leftJoin('bill_orders', 'orders.id', '=', 'bill_orders.order_id')
+                    ->leftJoin('bills', 'bill_orders.bill_id', '=', 'bills.id')
+                    ->where('bills.status', 'paid');
+            })
             ->get()
             ->groupBy('table_id');
 
@@ -50,8 +58,8 @@ class FloorViewService
                 // Get the latest unpaid order
                 $latestOrder = $tableUnpaidOrders->sortByDesc('created_at')->first();
 
-                // Calculate subtotal
-                $subtotal = $this->calculateOrderSubtotal($latestOrder);
+                // Calculate subtotal from all unpaid orders for the table
+                $subtotal = $this->calculateOrdersSubtotal($tableUnpaidOrders);
 
                 $tableData['unpaid_order'] = [
                     'order_id' => $latestOrder->id,
@@ -69,7 +77,7 @@ class FloorViewService
                 $summary['occupied']++;
                 $summary['total_unpaid_amount'] += $subtotal;
 
-                if ($latestOrder->status === 'ready') {
+                if ($this->allOrdersServed($tableUnpaidOrders)) {
                     $summary['ready_to_bill']++;
                 }
             } elseif ($table->status === 'reserved') {
@@ -89,19 +97,32 @@ class FloorViewService
     }
 
     /**
-     * Calculate subtotal for an order.
+     * Calculate subtotal for a collection of orders.
      *
-     * @param Order $order
+     * @param Collection<int, Order> $orders
      * @return float
      */
-    private function calculateOrderSubtotal(Order $order): float
+    private function calculateOrdersSubtotal(Collection $orders): float
     {
         $subtotal = 0.0;
 
-        foreach ($order->items as $item) {
-            $subtotal += (float) $item->price * (int) $item->quantity;
+        foreach ($orders as $order) {
+            foreach ($order->items as $item) {
+                $subtotal += (float) $item->price * (int) $item->quantity;
+            }
         }
 
         return $subtotal;
+    }
+
+    /**
+     * Determine whether all unpaid orders for a table have been served.
+     *
+     * @param Collection<int, Order> $orders
+     * @return bool
+     */
+    private function allOrdersServed(Collection $orders): bool
+    {
+        return $orders->every(fn (Order $order) => $order->status === 'served');
     }
 }
