@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MenuItemController;
 use App\Http\Controllers\MenuItemImageController;
 use App\Http\Controllers\Order\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -87,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin,cashier')->post('/bills', [BillController::class, 'store']);
     Route::middleware('role:admin,cashier')->get('/bills/{id}/receipt', [BillController::class, 'receipt']);
     Route::middleware('role:admin,cashier')->get('/tables/{table_id}/bill', [BillController::class, 'billSummary']);
+    Route::middleware('role:admin,cashier')->post('/payments', [PaymentController::class, 'store']);
 
     Route::middleware('role:cashier,admin')->get('/floor-view', [FloorViewController::class, 'index']);
 });
