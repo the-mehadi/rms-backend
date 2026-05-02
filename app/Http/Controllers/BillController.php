@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Billing\AttachOrdersToBillRequest;
 use App\Http\Requests\Billing\StoreBillRequest;
 use App\Http\Resources\BillResource;
 use App\Http\Resources\ReceiptResource;
@@ -58,7 +59,7 @@ class BillController extends Controller
                 (int) $data['table_id'],
                 (int) $request->user()->id,
                 (float) ($data['discount'] ?? 0),
-                (float) ($data['vat'] ?? 5), // Default to 5% VAT
+                (float) ($data['vat'] ?? 0), // Default to 5% VAT
             );
 
             return response()->json([
@@ -66,6 +67,36 @@ class BillController extends Controller
                 'message' => 'Bill created successfully.',
                 'data' => BillResource::make($bill),
             ], 201);
+        } catch (InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Get current unpaid bill summary for a table.
+     * Returns merged total of all unpaid orders.
+     */
+    public function attachOrdersToBill(int $id, AttachOrdersToBillRequest $request): JsonResponse
+    {
+        try {
+            $bill = $this->billingService->getBillById($id);
+            $data = $request->validated();
+
+            $updatedBill = $this->billingService->attachOrdersToBill($bill, $data['order_ids']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Orders attached to bill successfully.',
+                'data' => BillResource::make($updatedBill),
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bill not found.',
+            ], 404);
         } catch (InvalidArgumentException $e) {
             return response()->json([
                 'success' => false,

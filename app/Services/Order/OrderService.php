@@ -2,16 +2,22 @@
 
 namespace App\Services\Order;
 
+use App\Models\Bill;
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use App\Services\Billing\BillingService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 class OrderService
 {
+    public function __construct(
+        private readonly BillingService $billingService,
+    ) {}
+
     /**
      * Get all orders with pagination.
      */
@@ -105,7 +111,8 @@ class OrderService
 
     /**
      * Create a new order.
-     * Allows multiple orders per table - all unpaid orders are merged into a single bill.
+     * If an unpaid bill exists for the table, the new order is automatically attached to that bill.
+     * Otherwise, the order remains independent until a bill is created.
      *
      * @throws InvalidArgumentException
      */
@@ -131,6 +138,12 @@ class OrderService
                         'price' => $item['unit_price'] ?? $menuItem->price,
                     ]);
                 }
+            }
+
+            // Auto-attach to existing unpaid bill if one exists
+            $unpaidBill = Bill::getUnpaidBillForTable($data['table_id']);
+            if ($unpaidBill !== null) {
+                $this->billingService->attachOrdersToBill($unpaidBill, [$order->id]);
             }
 
             return $order->fresh(['table', 'user', 'items.menuItem']);

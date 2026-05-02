@@ -28,6 +28,7 @@ class BillingService
 
     /**
      * Create a merged bill for all unpaid orders of a table.
+     * If an unpaid bill already exists, returns that bill instead of creating a new one.
      *
      * @param int $tableId
      * @param int $userId
@@ -39,6 +40,12 @@ class BillingService
     public function createBill(int $tableId, int $userId, float $discount = 0.0, float $vat = 5.0): Bill
     {
         return DB::transaction(function () use ($tableId, $userId, $discount, $vat) {
+            // Check if an unpaid bill already exists for this table
+            $existingBill = Bill::getUnpaidBillForTable($tableId);
+            if ($existingBill !== null) {
+                return $existingBill->load(['table', 'orders.items.menuItem', 'cashier']);
+            }
+
             $table = Table::query()->lockForUpdate()->findOrFail($tableId);
 
             // Get all unpaid orders for this table
@@ -96,6 +103,40 @@ class BillingService
             $bill->orders()->attach($orderIds);
 
             return $bill->fresh(['table', 'orders.items.menuItem', 'cashier']);
+        });
+    }
+
+    /**
+     * Recalculate bill totals based on current linked orders.
+     * Preserves the discount and VAT percentage, recalculating amounts.
+     *
+     * @param Bill $bill
+     * @return Bill
+     */
+    public function recalculateBillTotals(Bill $bill): Bill
+    {
+        return $bill->recalculateTotals()->load(['table', 'orders.items.menuItem', 'cashier']);
+    }
+
+    /**
+     * Attach new orders to a bill and recalculate totals.
+     *
+     * @param Bill $bill
+     * @param array $orderIds
+     * @return Bill
+     */
+    public function attachOrdersToBill(Bill $bill, array $orderIds): Bill
+    {
+        return DB::transaction(function () use ($bill, $orderIds) {
+            if (empty($orderIds)) {
+                return $bill->fresh(['table', 'orders.items.menuItem', 'cashier']);
+            }
+
+            // Attach orders to the bill via pivot table (avoid duplicates with sync)
+            $bill->orders()->syncWithoutDetaching($orderIds);
+
+            // Recalculate bill totals
+            return $this->recalculateBillTotals($bill);
         });
     }
 
